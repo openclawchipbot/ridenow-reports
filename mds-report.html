@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Market Days Supply — RideNow Austin</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d2e;
+      --surface2: #222540;
+      --border: #2e3155;
+      --text: #e8eaf0;
+      --muted: #8a8fb0;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --orange: #f97316;
+      --red: #ef4444;
+      --darkred: #991b1b;
+      --blue: #3b82f6;
+      --purple: #a855f7;
+      --teal: #14b8a6;
+      --accent: #6366f1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.5; }
+    
+    .header { background: linear-gradient(135deg, #1a1d2e 0%, #16213e 50%, #0f1117 100%); border-bottom: 1px solid var(--border); padding: 28px 32px 24px; }
+    .header-top { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .logo-area { display: flex; align-items: center; gap: 12px; }
+    .logo-icon { width: 44px; height: 44px; background: var(--accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    .brand { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .report-title { font-size: 24px; font-weight: 700; color: var(--text); margin-top: 2px; }
+    .dealer-tag { font-size: 13px; color: var(--accent); font-weight: 500; margin-top: 2px; }
+    .header-meta { text-align: right; font-size: 12px; color: var(--muted); }
+    
+    .kpi-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; padding: 20px 32px; background: var(--surface); border-bottom: 1px solid var(--border); }
+    .kpi { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+    .kpi-val { font-size: 26px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+    .kpi-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .kpi.green .kpi-val { color: var(--green); }
+    .kpi.yellow .kpi-val { color: var(--yellow); }
+    .kpi.orange .kpi-val { color: var(--orange); }
+    .kpi.red .kpi-val { color: var(--red); }
+    .kpi.blue .kpi-val { color: var(--blue); }
+    .kpi.accent .kpi-val { color: var(--accent); }
+
+    .section { padding: 28px 32px; }
+    .section-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .section-sub { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
+    
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--surface2); }
+    th { padding: 10px 14px; text-align: left; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; border-bottom: 1px solid var(--border); }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--surface2); }
+    td { padding: 11px 14px; vertical-align: middle; }
+    .rank { font-size: 18px; font-weight: 800; color: var(--accent); width: 48px; }
+    .num { text-align: center; }
+    .price { color: var(--text); font-weight: 600; }
+    .model-cell { min-width: 200px; }
+    .model-name { font-weight: 600; color: var(--text); }
+    .model-sub { font-size: 12px; color: var(--muted); }
+    
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .badge.green  { background: rgba(34,197,94,0.15); color: var(--green); }
+    .badge.yellow { background: rgba(234,179,8,0.15); color: var(--yellow); }
+    .badge.orange { background: rgba(249,115,22,0.15); color: var(--orange); }
+    .badge.red    { background: rgba(239,68,68,0.15); color: var(--red); }
+    .badge.darkred{ background: rgba(153,27,27,0.25); color: #fca5a5; }
+    
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+    .pill.blue   { background: rgba(59,130,246,0.15); color: var(--blue); }
+    .pill.purple { background: rgba(168,85,247,0.15); color: var(--purple); }
+    .pill.teal   { background: rgba(20,184,166,0.15); color: var(--teal); }
+    
+    .row-fresh { background: rgba(34,197,94,0.04); }
+    .row-watch { background: rgba(234,179,8,0.03); }
+    .row-aged  { background: rgba(239,68,68,0.04); }
+    
+    .methodology { margin: 0 32px 28px; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; padding: 14px 18px; font-size: 12px; color: var(--muted); line-height: 1.7; }
+    .methodology strong { color: var(--text); }
+    
+    .age-bar-section { padding: 0 32px 28px; }
+    .age-bars { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 14px; }
+    .age-bar-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+    .age-bar-card .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .age-bar-card .count { font-size: 28px; font-weight: 800; line-height: 1; }
+    .age-bar-card .pct { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .bar-fill { height: 4px; border-radius: 2px; margin-top: 10px; }
+    
+    footer { text-align: center; padding: 20px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); }
+    
+    @media (max-width: 640px) {
+      .header, .kpi-strip, .section, .age-bar-section { padding-left: 16px; padding-right: 16px; }
+      .methodology { margin-left: 16px; margin-right: 16px; }
+      .report-title { font-size: 18px; }
+      th, td { padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="logo-area">
+      <div class="logo-icon">🏍️</div>
+      <div>
+        <div class="brand">MotoMate AI · Inventory Intelligence</div>
+        <div class="report-title">Market Days Supply Report</div>
+        <div class="dealer-tag">RideNow Powersports Austin</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div>Wednesday, February 25, 2026 at 01:27 PM PST</div>
+      <div style="margin-top:4px;">779 active units · 394 model groups</div>
+    </div>
+  </div>
+</div>
+
+<!-- KPI STRIP -->
+<div class="kpi-strip">
+  <div class="kpi blue">
+    <div class="kpi-val">779</div>
+    <div class="kpi-lbl">Active Units</div>
+  </div>
+  <div class="kpi accent">
+    <div class="kpi-val">394</div>
+    <div class="kpi-lbl">Model Groups</div>
+  </div>
+  <div class="kpi green">
+    <div class="kpi-val">84</div>
+    <div class="kpi-lbl">Fresh &lt;30d</div>
+  </div>
+  <div class="kpi yellow">
+    <div class="kpi-val">57</div>
+    <div class="kpi-lbl">Watch 30–60d</div>
+  </div>
+  <div class="kpi orange">
+    <div class="kpi-val">57</div>
+    <div class="kpi-lbl">Attention 60–90d</div>
+  </div>
+  <div class="kpi red">
+    <div class="kpi-val">196</div>
+    <div class="kpi-lbl">Stale 90d+</div>
+  </div>
+  <div class="kpi red">
+    <div class="kpi-val">118d</div>
+    <div class="kpi-lbl">Avg Lot Age</div>
+  </div>
+</div>
+
+<!-- METHODOLOGY NOTE -->
+<div class="methodology">
+  <strong>⚡ Methodology:</strong> Historical monthly sales data (monthlyStats) is not yet populated for this deployment — this is normal for a new system onboarding. MDS is estimated using current inventory age as a proxy: 
+  <strong>Est. MDS = Avg Days on Lot ÷ 15</strong> (based on the steady-state relationship where avg inventory age ≈ MDS × 15 days). 
+  Models with the lowest average age are your fastest movers — they sell before units can age on the lot. Multi-unit models (2+ in stock) provide higher confidence signals.
+</div>
+
+<!-- TOP 10 FASTEST — MULTI-UNIT HERO TABLE -->
+<div class="section">
+  <div class="section-title">⚡ Top 10 Fastest-Turning Models</div>
+  <div class="section-sub">Multi-unit models only (2+ in stock) — sorted by average days on lot ascending. Lower avg age = faster turn.</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Year / Make / Model</th>
+          <th>Cond.</th>
+          <th style="text-align:center;">Units</th>
+          <th style="text-align:center;">Avg Age</th>
+          <th style="text-align:center;">Est. MDS</th>
+          <th style="text-align:center;">Market Comps</th>
+          <th style="text-align:center;">Avg Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+  <tr>
+    <td class="rank">#1</td>
+    <td class="model-cell">
+      <div class="model-name">2026 YAMAHA</div>
+      <div class="model-sub">JETBLASTER DLX 3-AZURE BLUE/WHITE</div>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">10</td>
+    <td><span class="badge green">Fresh · 8d</span></td>
+    <td><span class="badge green">~0.5mo</span></td>
+    <td class="num">670</td>
+    <td class="num price">$15,529</td>
+  </tr>
+  <tr>
+    <td class="rank">#2</td>
+    <td class="model-cell">
+      <div class="model-name">2026 YAMAHA</div>
+      <div class="model-sub">MT-09 SP</div>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">7</td>
+    <td><span class="badge green">Fresh · 10d</span></td>
+    <td><span class="badge green">~0.7mo</span></td>
+    <td class="num">60</td>
+    <td class="num price">$12,699</td>
+  </tr>
+  <tr>
+    <td class="rank">#3</td>
+    <td class="model-cell">
+      <div class="model-name">2026 YAMAHA</div>
+      <div class="model-sub">TT-R110E</div>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">2</td>
+    <td><span class="badge green">Fresh · 13d</span></td>
+    <td><span class="badge green">~0.9mo</span></td>
+    <td class="num">40</td>
+    <td class="num price">$2,449</td>
+  </tr>
+  <tr>
+    <td class="rank">#4</td>
+    <td class="model-cell">
+      <div class="model-name">2026 YAMAHA</div>
+      <div class="model-sub">YZF-R3 ABS</div>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">8</td>
+    <td><span class="badge green">Fresh · 13d</span></td>
+    <td><span class="badge green">~0.9mo</span></td>
+    <td class="num">95</td>
+    <td class="num price">$5,499</td>
+  </tr>
+  <tr>
+    <td class="rank">#5</td>
+    <td class="model-cell">
+      <div class="model-name">2026 YAMAHA</div>
+      <div class="model-sub">TT-R125LE</div>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">3</td>
+    <td><span class="badge green">Fresh · 14d</span></td>
+    <td><span class="badge green">~0.9mo</span></td>
+    <td class="num">18</td>
+    <td class="num price">$3,599</td>
+  </tr>
+  <tr>
+    <td class="rank">#6</td>
+    <td class="model-cell">
+      <div class="model-name">2022 BOMBARDIER</div>
+      <div class="model-sub">Ryker Rally 900 ACE™</div>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">2</td>
+    <td><span class="badge green">Fresh · 15d</span></td>
+    <td><span class="badge green">~1mo</span></td>
+    <td class="num">5</td>
+    <td class="num price">$8,749</td>
+  </tr>
+  <tr>
+    <td class="rank">#7</td>
+    <td class="model-cell">
+      <div class="model-name">2025 HONDA</div>
+      <div class="model-sub">TRANSALP Base</div>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">2</td>
+    <td><span class="badge green">Fresh · 16d</span></td>
+    <td><span class="badge green">~1.1mo</span></td>
+    <td class="num">47</td>
+    <td class="num price">$9,999</td>
+  </tr>
+  <tr>
+    <td class="rank">#8</td>
+    <td class="model-cell">
+      <div class="model-name">2026 BMW</div>
+      <div class="model-sub">R 1300 RT</div>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">2</td>
+    <td><span class="badge green">Fresh · 18d</span></td>
+    <td><span class="badge green">~1.2mo</span></td>
+    <td class="num">25</td>
+    <td class="num price">$33,325</td>
+  </tr>
+  <tr>
+    <td class="rank">#9</td>
+    <td class="model-cell">
+      <div class="model-name">2026 YAMAHA</div>
+      <div class="model-sub">MT-09</div>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">3</td>
+    <td><span class="badge green">Fresh · 19d</span></td>
+    <td><span class="badge green">~1.3mo</span></td>
+    <td class="num">32</td>
+    <td class="num price">$10,899</td>
+  </tr>
+  <tr>
+    <td class="rank">#10</td>
+    <td class="model-cell">
+      <div class="model-name">2026 YAMAHA</div>
+      <div class="model-sub">MT-07</div>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">21</td>
+    <td><span class="badge green">Fresh · 23d</span></td>
+    <td><span class="badge green">~1.5mo</span></td>
+    <td class="num">135</td>
+    <td class="num price">$8,599</td>
+  </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- AGE DISTRIBUTION -->
+<div class="age-bar-section">
+  <div class="section-title" style="margin-bottom:0">Inventory Age Distribution</div>
+  <div class="section-sub" style="margin-bottom:0">Across all 394 model groups</div>
+  <div class="age-bars">
+    <div class="age-bar-card">
+      <div class="label">🟢 Fresh &lt;30d</div>
+      <div class="count" style="color:var(--green)">84</div>
+      <div class="pct">21% of groups</div>
+      <div class="bar-fill" style="background:var(--green);width:21%"></div>
+    </div>
+    <div class="age-bar-card">
+      <div class="label">🟡 Watch 30–60d</div>
+      <div class="count" style="color:var(--yellow)">57</div>
+      <div class="pct">14% of groups</div>
+      <div class="bar-fill" style="background:var(--yellow);width:14%"></div>
+    </div>
+    <div class="age-bar-card">
+      <div class="label">🟠 Attention 60–90d</div>
+      <div class="count" style="color:var(--orange)">57</div>
+      <div class="pct">14% of groups</div>
+      <div class="bar-fill" style="background:var(--orange);width:14%"></div>
+    </div>
+    <div class="age-bar-card">
+      <div class="label">🔴 Stale 90–120d</div>
+      <div class="count" style="color:var(--red)">57</div>
+      <div class="pct">14% of groups</div>
+      <div class="bar-fill" style="background:var(--red);width:14%"></div>
+    </div>
+    <div class="age-bar-card">
+      <div class="label">⚫ Aged Out 120d+</div>
+      <div class="count" style="color:#fca5a5">139</div>
+      <div class="pct">35% of groups</div>
+      <div class="bar-fill" style="background:#991b1b;width:35%"></div>
+    </div>
+  </div>
+</div>
+
+<!-- FULL TOP-30 TABLE -->
+<div class="section" style="padding-top:0">
+  <div class="section-title">📋 Top 30 Model Groups by Turn Speed</div>
+  <div class="section-sub">All unit counts included. Green rows = Fresh &lt;30d · Muted red = Aged 90d+</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Year / Make / Model</th>
+          <th>Cond.</th>
+          <th style="text-align:center;">Total</th>
+          <th style="text-align:center;">New</th>
+          <th style="text-align:center;">Used</th>
+          <th style="text-align:center;">Avg Age</th>
+          <th style="text-align:center;">Est. MDS</th>
+          <th style="text-align:center;">Avg Price</th>
+          <th style="text-align:center;">Mkt Comps</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+  <tr class="row-fresh">
+    <td class="num">1</td>
+    <td class="model-cell">
+      <span class="model-name">2020 HARLEY-DAVIDSON</span>
+      <span class="model-sub"> — FXBRS</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">1</td>
+    <td><span class="badge green">Fresh · 8d</span></td>
+    <td><span class="badge green">~0.5mo</span></td>
+    <td class="num price">—</td>
+    <td class="num">2</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">2</td>
+    <td class="model-cell">
+      <span class="model-name">2026 YAMAHA</span>
+      <span class="model-sub"> — JETBLASTER DLX 3-AZURE BLUE/WHITE</span>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">10</td>
+    <td class="num">10</td>
+    <td class="num">—</td>
+    <td><span class="badge green">Fresh · 8d</span></td>
+    <td><span class="badge green">~0.5mo</span></td>
+    <td class="num price">$15,529</td>
+    <td class="num">670</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">3</td>
+    <td class="model-cell">
+      <span class="model-name">2026 YAMAHA</span>
+      <span class="model-sub"> — MT-09 SP</span>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">7</td>
+    <td class="num">7</td>
+    <td class="num">—</td>
+    <td><span class="badge green">Fresh · 10d</span></td>
+    <td><span class="badge green">~0.7mo</span></td>
+    <td class="num price">$12,699</td>
+    <td class="num">60</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">4</td>
+    <td class="model-cell">
+      <span class="model-name">2023 CAN-AM</span>
+      <span class="model-sub"> — ATV OUTL XMR 850 GNL 23</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">1</td>
+    <td><span class="badge green">Fresh · 11d</span></td>
+    <td><span class="badge green">~0.7mo</span></td>
+    <td class="num price">$13,699</td>
+    <td class="num">2</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">5</td>
+    <td class="model-cell">
+      <span class="model-name">2019 YAMAHA</span>
+      <span class="model-sub"> — YZF-R1</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">1</td>
+    <td><span class="badge green">Fresh · 11d</span></td>
+    <td><span class="badge green">~0.7mo</span></td>
+    <td class="num price">$16,299</td>
+    <td class="num">2</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">6</td>
+    <td class="model-cell">
+      <span class="model-name">2024 INDIAN</span>
+      <span class="model-sub"> — FTR SPORT, GRANITE GRAY / BLUE , 49ST Sport</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">1</td>
+    <td><span class="badge green">Fresh · 11d</span></td>
+    <td><span class="badge green">~0.7mo</span></td>
+    <td class="num price">$13,299</td>
+    <td class="num">3</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">7</td>
+    <td class="model-cell">
+      <span class="model-name">2015 INDIAN</span>
+      <span class="model-sub"> — SCOUT, THUNDER BLACK, 49ST Base</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">1</td>
+    <td><span class="badge green">Fresh · 12d</span></td>
+    <td><span class="badge green">~0.8mo</span></td>
+    <td class="num price">—</td>
+    <td class="num">2</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">8</td>
+    <td class="model-cell">
+      <span class="model-name">2024 BMW</span>
+      <span class="model-sub"> — M 1000 R</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">1</td>
+    <td><span class="badge green">Fresh · 12d</span></td>
+    <td><span class="badge green">~0.8mo</span></td>
+    <td class="num price">—</td>
+    <td class="num">1</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">9</td>
+    <td class="model-cell">
+      <span class="model-name">2025 HARLEY-DAVIDSON</span>
+      <span class="model-sub"> — FXLRST</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">1</td>
+    <td><span class="badge green">Fresh · 12d</span></td>
+    <td><span class="badge green">~0.8mo</span></td>
+    <td class="num price">—</td>
+    <td class="num">6</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">10</td>
+    <td class="model-cell">
+      <span class="model-name">2025 DUCATI</span>
+      <span class="model-sub"> — Panigale V4</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">1</td>
+    <td><span class="badge green">Fresh · 12d</span></td>
+    <td><span class="badge green">~0.8mo</span></td>
+    <td class="num price">$26,991</td>
+    <td class="num">2</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">11</td>
+    <td class="model-cell">
+      <span class="model-name">2026 Polaris</span>
+      <span class="model-sub"> — Sportsman 6x6 570</span>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">1</td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td><span class="badge green">Fresh · 12d</span></td>
+    <td><span class="badge green">~0.8mo</span></td>
+    <td class="num price">$14,999</td>
+    <td class="num">7</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">12</td>
+    <td class="model-cell">
+      <span class="model-name">2020 HONDA</span>
+      <span class="model-sub"> — MONKEY Base</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">1</td>
+    <td><span class="badge green">Fresh · 13d</span></td>
+    <td><span class="badge green">~0.9mo</span></td>
+    <td class="num price">$3,791</td>
+    <td class="num">2</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">13</td>
+    <td class="model-cell">
+      <span class="model-name">2026 YAMAHA</span>
+      <span class="model-sub"> — TT-R110E</span>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">2</td>
+    <td class="num">2</td>
+    <td class="num">—</td>
+    <td><span class="badge green">Fresh · 13d</span></td>
+    <td><span class="badge green">~0.9mo</span></td>
+    <td class="num price">$2,449</td>
+    <td class="num">40</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">14</td>
+    <td class="model-cell">
+      <span class="model-name">2021 BOMBARDIER</span>
+      <span class="model-sub"> — Ryker 600 ACE™</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">1</td>
+    <td><span class="badge green">Fresh · 13d</span></td>
+    <td><span class="badge green">~0.9mo</span></td>
+    <td class="num price">—</td>
+    <td class="num">3</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">15</td>
+    <td class="model-cell">
+      <span class="model-name">2026 YAMAHA</span>
+      <span class="model-sub"> — WR125R</span>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">1</td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td><span class="badge green">Fresh · 13d</span></td>
+    <td><span class="badge green">~0.9mo</span></td>
+    <td class="num price">$3,999</td>
+    <td class="num">45</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">16</td>
+    <td class="model-cell">
+      <span class="model-name">2026 YAMAHA</span>
+      <span class="model-sub"> — YZF-R3 ABS</span>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">8</td>
+    <td class="num">8</td>
+    <td class="num">—</td>
+    <td><span class="badge green">Fresh · 13d</span></td>
+    <td><span class="badge green">~0.9mo</span></td>
+    <td class="num price">$5,499</td>
+    <td class="num">95</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">17</td>
+    <td class="model-cell">
+      <span class="model-name">2022 HARLEY-DAVIDSON</span>
+      <span class="model-sub"> — FXLRST</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">1</td>
+    <td><span class="badge green">Fresh · 13d</span></td>
+    <td><span class="badge green">~0.9mo</span></td>
+    <td class="num price">$15,991</td>
+    <td class="num">4</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">18</td>
+    <td class="model-cell">
+      <span class="model-name">2026 YAMAHA</span>
+      <span class="model-sub"> — TT-R125LE</span>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">3</td>
+    <td class="num">3</td>
+    <td class="num">—</td>
+    <td><span class="badge green">Fresh · 14d</span></td>
+    <td><span class="badge green">~0.9mo</span></td>
+    <td class="num price">$3,599</td>
+    <td class="num">18</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">19</td>
+    <td class="model-cell">
+      <span class="model-name">2024 HONDA</span>
+      <span class="model-sub"> — Rebel® 1100T Base</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">1</td>
+    <td><span class="badge green">Fresh · 14d</span></td>
+    <td><span class="badge green">~0.9mo</span></td>
+    <td class="num price">—</td>
+    <td class="num">5</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">20</td>
+    <td class="model-cell">
+      <span class="model-name">2026 YAMAHA</span>
+      <span class="model-sub"> — Grizzly 110</span>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">1</td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td><span class="badge green">Fresh · 15d</span></td>
+    <td><span class="badge green">~1mo</span></td>
+    <td class="num price">$3,599</td>
+    <td class="num">23</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">21</td>
+    <td class="model-cell">
+      <span class="model-name">2022 BOMBARDIER</span>
+      <span class="model-sub"> — Ryker Rally 900 ACE™</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">2</td>
+    <td class="num">—</td>
+    <td class="num">2</td>
+    <td><span class="badge green">Fresh · 15d</span></td>
+    <td><span class="badge green">~1mo</span></td>
+    <td class="num price">$8,749</td>
+    <td class="num">5</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">22</td>
+    <td class="model-cell">
+      <span class="model-name">2026 YAMAHA</span>
+      <span class="model-sub"> — XMAX</span>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">1</td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td><span class="badge green">Fresh · 15d</span></td>
+    <td><span class="badge green">~1mo</span></td>
+    <td class="num price">$6,399</td>
+    <td class="num">24</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">23</td>
+    <td class="model-cell">
+      <span class="model-name">2023 KAWASAKI</span>
+      <span class="model-sub"> — Ninja® ZX™-10R KRT Edition</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">1</td>
+    <td><span class="badge green">Fresh · 15d</span></td>
+    <td><span class="badge green">~1mo</span></td>
+    <td class="num price">—</td>
+    <td class="num">12</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">24</td>
+    <td class="model-cell">
+      <span class="model-name">2024 YAMAHA</span>
+      <span class="model-sub"> — R1</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">1</td>
+    <td><span class="badge green">Fresh · 15d</span></td>
+    <td><span class="badge green">~1mo</span></td>
+    <td class="num price">—</td>
+    <td class="num">7</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">25</td>
+    <td class="model-cell">
+      <span class="model-name">2026 KAWASAKI</span>
+      <span class="model-sub"> — Mule PRO-FXT 1000 LE Camo</span>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">1</td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td><span class="badge green">Fresh · 15d</span></td>
+    <td><span class="badge green">~1mo</span></td>
+    <td class="num price">$18,999</td>
+    <td class="num">443</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">26</td>
+    <td class="model-cell">
+      <span class="model-name">2019 KARAVAN</span>
+      <span class="model-sub"> — TRAILER SEA-DOO MOVE I XL1250 A 19</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">1</td>
+    <td><span class="badge green">Fresh · 16d</span></td>
+    <td><span class="badge green">~1.1mo</span></td>
+    <td class="num price">—</td>
+    <td class="num">—</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">27</td>
+    <td class="model-cell">
+      <span class="model-name">2015 BMW</span>
+      <span class="model-sub"> — R 1200 RT</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">1</td>
+    <td><span class="badge green">Fresh · 16d</span></td>
+    <td><span class="badge green">~1.1mo</span></td>
+    <td class="num price">—</td>
+    <td class="num">—</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">28</td>
+    <td class="model-cell">
+      <span class="model-name">2026 HONDA</span>
+      <span class="model-sub"> — TRX90X</span>
+    </td>
+    <td><span class="pill blue">New</span></td>
+    <td class="num">1</td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td><span class="badge green">Fresh · 16d</span></td>
+    <td><span class="badge green">~1.1mo</span></td>
+    <td class="num price">$3,549</td>
+    <td class="num">21</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">29</td>
+    <td class="model-cell">
+      <span class="model-name">2019 KAWASAKI</span>
+      <span class="model-sub"> — Jet Ski Ultra 310LX</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">1</td>
+    <td><span class="badge green">Fresh · 16d</span></td>
+    <td><span class="badge green">~1.1mo</span></td>
+    <td class="num price">—</td>
+    <td class="num">1</td>
+  </tr>
+  <tr class="row-fresh">
+    <td class="num">30</td>
+    <td class="model-cell">
+      <span class="model-name">2021 TRIUMPH</span>
+      <span class="model-sub"> — Speed Twin 1200 Base</span>
+    </td>
+    <td><span class="pill purple">Used</span></td>
+    <td class="num">1</td>
+    <td class="num">—</td>
+    <td class="num">1</td>
+    <td><span class="badge green">Fresh · 16d</span></td>
+    <td><span class="badge green">~1.1mo</span></td>
+    <td class="num price">—</td>
+    <td class="num">1</td>
+  </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<footer>
+  Generated by MotoMate AI · RideNow Powersports Austin · Wednesday, February 25, 2026 at 01:27 PM PST
+</footer>
+
+</body>
+</html>
