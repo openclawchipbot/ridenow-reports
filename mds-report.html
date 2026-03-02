@@ -109,6 +109,20 @@
     font-size: 0.875rem;
   }
   thead tr { background: #12152a; }
+  thead th.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    white-space: nowrap;
+  }
+  thead th.sortable:hover { background: #1e2240; }
+  thead th.sortable::after {
+    content: ' ⇅';
+    opacity: 0.35;
+    font-size: 0.75em;
+  }
+  thead th.sortable.sort-asc::after  { content: ' ▲'; opacity: 0.9; }
+  thead th.sortable.sort-desc::after { content: ' ▼'; opacity: 0.9; }
   thead th {
     padding: 12px 14px;
     text-align: left;
@@ -6290,5 +6304,70 @@
   </div>
 
 </div>
+
+<script>
+(function() {
+  function parseCell(td, colIndex) {
+    var raw = '';
+    if (colIndex === 1) {
+      // Model column: use first div text
+      var div = td.querySelector('div');
+      raw = div ? div.textContent.trim() : td.textContent.trim();
+      return raw;
+    }
+    raw = td.textContent.trim();
+    if (raw === '—' || raw === '') return null;
+    // Age columns: "123d"
+    if (raw.endsWith('d')) return parseFloat(raw);
+    // Price columns: "$12,345"
+    if (raw.startsWith('$')) return parseFloat(raw.replace(/[$,]/g, ''));
+    // Numeric
+    var n = parseFloat(raw);
+    return isNaN(n) ? raw : n;
+  }
+
+  function compareVals(a, b, asc) {
+    if (a === null && b === null) return 0;
+    if (a === null) return 1;   // nulls always last
+    if (b === null) return -1;
+    if (typeof a === 'string' && typeof b === 'string') {
+      return asc ? a.localeCompare(b) : b.localeCompare(a);
+    }
+    return asc ? a - b : b - a;
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('table').forEach(function(table) {
+      var ths = table.querySelectorAll('thead th');
+      ths.forEach(function(th, colIndex) {
+        th.classList.add('sortable');
+        th.dataset.sortDir = '';
+        th.addEventListener('click', function() {
+          var asc = th.dataset.sortDir !== 'asc';
+          // Clear other headers in this table
+          ths.forEach(function(h) {
+            h.classList.remove('sort-asc', 'sort-desc');
+            h.dataset.sortDir = '';
+          });
+          th.classList.add(asc ? 'sort-asc' : 'sort-desc');
+          th.dataset.sortDir = asc ? 'asc' : 'desc';
+
+          var tbody = table.querySelector('tbody');
+          var rows = Array.from(tbody.querySelectorAll('tr'));
+          rows.sort(function(rowA, rowB) {
+            var cellA = rowA.querySelectorAll('td')[colIndex];
+            var cellB = rowB.querySelectorAll('td')[colIndex];
+            if (!cellA || !cellB) return 0;
+            var a = parseCell(cellA, colIndex);
+            var b = parseCell(cellB, colIndex);
+            return compareVals(a, b, asc);
+          });
+          rows.forEach(function(r) { tbody.appendChild(r); });
+        });
+      });
+    });
+  });
+})();
+</script>
 </body>
 </html>
